@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Liismm - PDF Studio</title>
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --text-color: #1c1c1e;
+            --accent-color: #007aff;
+            --accent-hover: #0056b3;
+            --danger-color: #ff3b30;
+            --card-radius: 22px;
+            --input-radius: 12px;
+        }
+
+        [data-theme="dark"] {
+            --bg-gradient: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            --glass-bg: rgba(28, 28, 30, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --text-color: #f2f2f7;
+            --accent-color: #0a84ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            touch-action: manipulation;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 120px;
+            transition: background 0.5s ease;
+        }
+
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+        }
+
+        header {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 16px 28px;
+            border-radius: var(--card-radius);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .brand i {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-icon:hover {
+            transform: scale(1.08);
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .main-container {
+            width: 90%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 24px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            border-radius: var(--card-radius);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            height: fit-content;
+        }
+
+        .panel-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.6;
+        }
+
+        .dropzone {
+            border: 2px dashed var(--accent-color);
+            border-radius: 16px;
+            padding: 24px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(0, 122, 255, 0.03);
+            word-break: break-all;
+        }
+
+        .dropzone:hover {
+            background: rgba(0, 122, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .dropzone i {
+            font-size: 2.2rem;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: var(--input-radius);
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text-color);
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+        }
+
+        select.input-field { cursor: pointer; }
+
+        .color-pickers {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .color-picker-input {
+            -webkit-appearance: none;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            overflow: hidden;
+            background: none;
+        }
+
+        .color-picker-input::-webkit-color-swatch-wrapper { padding: 0; }
+        .color-picker-input::-webkit-color-swatch { border: none; border-radius: 50%; }
+
+        .viewer-container {
+            border-radius: var(--card-radius);
+            padding: 24px;
+            padding-bottom: 70px;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .page-wrapper {
+            position: relative;
+            background: white;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            margin-bottom: 30px;
+            transform-origin: top center;
+            transition: transform 0.2s ease;
+        }
+
+        .text-span {
+            position: absolute;
+            cursor: pointer;
+            border: 1px dashed rgba(0, 122, 255, 0.4);
+            border-radius: 2px;
+            transition: border 0.15s ease;
+            box-sizing: border-box;
+            white-space: nowrap;
+            overflow: visible;
+            display: flex;
+            align-items: center;
+            user-select: none;
+        }
+
+        .text-span:hover {
+            border: 1.5px dashed var(--accent-color);
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .text-span.selected {
+            border: 2px solid var(--accent-color);
+            background: rgba(0, 122, 255, 0.2);
+            box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.3);
+            z-index: 50;
+        }
+
+        .resize-handle {
+            position: absolute;
+            right: -6px;
+            top: 0;
+            width: 14px;
+            height: 100%;
+            cursor: ew-resize;
+            background: var(--accent-color);
+            border-radius: 3px;
+            display: none;
+            touch-action: none;
+        }
+
+        .text-span.selected .resize-handle {
+            display: block;
+        }
+
+        .text-span.modified {
+            border: 2px solid #34c759;
+            background: white;
+            color: #1c1c1e;
+            padding: 0 2px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .ocr-banner {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            border-radius: 16px;
+            z-index: 90;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .ocr-text {
+            font-size: 0.8rem;
+            font-weight: 500;
+            opacity: 0.85;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-ocr {
+            padding: 8px 14px;
+            border-radius: 12px;
+            border: none;
+            background: var(--accent-color);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-ocr:hover {
+            background: var(--accent-hover);
+            transform: scale(1.03);
+        }
+
+        .dock-container {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            z-index: 1000;
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes slideUp {
+            from { transform: translate(-50%, 100px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        .btn-dock {
+            padding: 12px 22px;
+            border-radius: 20px;
+            border: none;
+            background: var(--accent-color);
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .btn-dock:hover {
+            transform: translateY(-2px) scale(1.03);
+            background: var(--accent-hover);
+        }
+
+        .btn-dock-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--text-color);
+            box-shadow: none;
+        }
+
+        .btn-dock-secondary:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+            opacity: 0.5;
+            gap: 12px;
+        }
+
+        .empty-state i { font-size: 4rem; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="glass">
+        <div class="brand">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span>Liismm <small style="font-size: 0.6em; opacity: 0.6; font-weight: normal;">PDF Studio</small></span>
+        </div>
+        <div class="header-actions">
+            <button class="btn-icon" id="zoomOutBtn" title="Alejar"><i class="fa-solid fa-minus"></i></button>
+            <span id="zoomLabel" style="font-size: 0.85rem; font-weight: 600;">100%</span>
+            <button class="btn-icon" id="zoomInBtn" title="Acercar"><i class="fa-solid fa-plus"></i></button>
+            <button class="btn-icon" id="themeToggle" title="Cambiar Tema"><i class="fa-solid fa-moon"></i></button>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <div class="main-container">
+        <!-- Control Sidebar -->
+        <div class="panel glass">
+            <div class="panel-title">Cargar Documento</div>
+            <div class="dropzone" id="dropzone">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <p id="fileNameText" style="font-weight: 600; font-size: 0.9rem;">Toca o arrastra tu PDF</p>
+                <small style="opacity: 0.6; font-size: 0.75rem;">Archivos soportados: .pdf</small>
+                <input type="file" id="fileInput" accept="application/pdf, image/*" style="display: none;">
+            </div>
+
+            <div class="panel-title" style="margin-top: 5px;">Propiedades del Texto</div>
+            
+            <div class="control-group">
+                <label>Texto a reemplazar</label>
+                <input type="text" id="textInput" class="input-field" placeholder="Selecciona un texto..." disabled>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <div class="control-group" style="flex: 1;">
+                    <label>Tamaño (pt)</label>
+                    <input type="number" id="fontSizeInput" class="input-field" min="6" max="100" value="12" disabled>
+                </div>
+                <div class="control-group" style="flex: 1;">
+                    <label>Color</label>
+                    <div class="color-pickers">
+                        <input type="color" id="fontColorInput" class="color-picker-input" value="#000000" disabled>
+                        <span id="colorHexLabel" style="font-size: 0.8rem; opacity: 0.7;">#000000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FUENTES DETECTADAS DEL PDF -->
+            <div class="control-group">
+                <label>Fuente detectada en el PDF</label>
+                <select id="fontSelect" class="input-field" disabled>
+                    <option value="">Selecciona un texto primero</option>
+                </select>
+            </div>
+
+            <!-- ANCHO DE LA CAJA DE TEXTO -->
+            <div class="control-group">
+                <label>Ancho del cuadro (px) o arrastra el borde azul</label>
+                <input type="number" id="boxWidthInput" class="input-field" min="10" max="2000" disabled>
+            </div>
+
+            <button class="btn-dock btn-dock-secondary" id="applyTextBtn" style="width: 100%; justify-content: center; margin-top: 5px;" disabled>
+                <i class="fa-solid fa-check"></i> Aplicar al texto
+            </button>
+        </div>
+
+        <!-- Document Area -->
+        <div class="viewer-container glass" id="viewerContainer">
+            <div class="empty-state" id="emptyState">
+                <i class="fa-regular fa-folder-open"></i>
+                <p>No hay ningún documento abierto</p>
+                <p>OJO.. Solo edita PDFs digitales...</p>
+            </div>
+            <div id="pagesContainer"></div>
+
+            <!-- OCR BANNER -->
+            <div class="ocr-banner glass">
+                <span class="ocr-text">
+                    <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--accent-color);"></i>
+                    Si tu PDF no se modificó o es una imagen, conviértelo a OCR
+                </span>
+                <button class="btn-ocr" id="ocrBtn">
+                    <i class="fa-solid fa-file-signature"></i> Convertir a OCR
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Dock -->
+    <div class="dock-container glass" id="dockContainer" style="display: none;">
+        <span id="modCount" style="font-size: 0.85rem; font-weight: 600; opacity: 0.8;">0 Cambios</span>
+        <button class="btn-dock btn-dock-secondary" id="resetBtn">
+            <i class="fa-solid fa-rotate-left"></i> Deshacer
+        </button>
+        <button class="btn-dock" id="savePdfBtn">
+            <i class="fa-solid fa-download"></i> Guardar y Descargar
+        </button>
+    </div>
+
+    <script>
+        let currentFilename = "";
+        let pdfPages = [];
+        let modifications = {};
+        let selectedSpan = null;
+        let zoomLevel = 1.0;
+
+        // Elements
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const fileNameText = document.getElementById('fileNameText');
+        const pagesContainer = document.getElementById('pagesContainer');
+        const emptyState = document.getElementById('emptyState');
+        const textInput = document.getElementById('textInput');
+        const fontSizeInput = document.getElementById('fontSizeInput');
+        const fontColorInput = document.getElementById('fontColorInput');
+        const colorHexLabel = document.getElementById('colorHexLabel');
+        const fontSelect = document.getElementById('fontSelect');
+        const boxWidthInput = document.getElementById('boxWidthInput');
+        const applyTextBtn = document.getElementById('applyTextBtn');
+        const dockContainer = document.getElementById('dockContainer');
+        const modCount = document.getElementById('modCount');
+        const savePdfBtn = document.getElementById('savePdfBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const themeToggle = document.getElementById('themeToggle');
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        const zoomLabel = document.getElementById('zoomLabel');
+        const ocrBtn = document.getElementById('ocrBtn');
+
+        // Theme Switcher
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            themeToggle.querySelector('i').className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+        });
+
+        // Dropzone handlers
+        dropzone.addEventListener('click', () => fileInput.click());
+        dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.style.borderColor = '#34c759'; });
+        dropzone.addEventListener('dragleave', () => { dropzone.style.borderColor = 'var(--accent-color)'; });
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.style.borderColor = 'var(--accent-color)';
+            if(e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', (e) => { if(e.target.files.length) handleFile(e.target.files[0]); });
+
+        async function handleFile(file) {
+            fileNameText.innerText = file.name;
+            const formData = new FormData();
+            formData.append('file', file);
+
+            emptyState.style.display = 'none';
+            pagesContainer.innerHTML = '<p style="opacity:0.7;">Cargando documento...</p>';
+
+            try {
+                const res = await fetch('/upload', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                currentFilename = data.filename;
+                pdfPages = data.pages;
+                modifications = {};
+                updateDock();
+                renderPages();
+            } catch (err) {
+                alert("Error al cargar el documento.");
+            }
+        }
+
+        ocrBtn.addEventListener('click', async () => {
+            if (!currentFilename) { fileInput.click(); return; }
+
+            ocrBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Escaneando OCR...';
+            ocrBtn.disabled = true;
+
+            try {
+                const res = await fetch('/ocr', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: currentFilename })
+                });
+                const data = await res.json();
+
+                if (data.pages) {
+                    pdfPages = data.pages;
+                    renderPages();
+                    alert("OCR finalizado con éxito.");
+                } else {
+                    alert("No se pudo extraer texto por OCR.");
+                }
+            } catch (err) {
+                alert("Error durante la extracción OCR.");
+            } finally {
+                ocrBtn.innerHTML = '<i class="fa-solid fa-file-signature"></i> Convertir a OCR';
+                ocrBtn.disabled = false;
+            }
+        });
+
+        function renderPages() {
+            pagesContainer.innerHTML = '';
+            
+            pdfPages.forEach((page) => {
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'page-wrapper';
+                pageDiv.style.width = `${page.width}px`;
+                pageDiv.style.height = `${page.height}px`;
+
+                if (page.image) {
+                    const bgImg = document.createElement('img');
+                    bgImg.src = page.image;
+                    bgImg.style.position = 'absolute';
+                    bgImg.style.top = '0';
+                    bgImg.style.left = '0';
+                    bgImg.style.width = '100%';
+                    bgImg.style.height = '100%';
+                    bgImg.style.pointerEvents = 'none'; 
+                    bgImg.style.zIndex = '0';
+                    pageDiv.appendChild(bgImg);
+                }
+
+                page.spans.forEach((span, idx) => {
+                    const spanEl = document.createElement('div');
+                    spanEl.className = 'text-span';
+                    spanEl.style.zIndex = '1';
+                    const key = `${page.page_num}_${idx}`;
+
+                    const currentMod = modifications[key];
+                    const activeBbox = currentMod && currentMod.customBbox ? currentMod.customBbox : span.bbox;
+
+                    if(currentMod) {
+                        spanEl.classList.add('modified');
+                        spanEl.innerText = currentMod.new_text;
+                        spanEl.style.fontSize = `${currentMod.size}px`;
+                        spanEl.style.color = currentMod.color;
+                    }
+
+                    spanEl.style.left = `${activeBbox[0]}px`;
+                    spanEl.style.top = `${activeBbox[1]}px`;
+                    spanEl.style.width = `${activeBbox[2] - activeBbox[0]}px`;
+                    spanEl.style.height = `${activeBbox[3] - activeBbox[1]}px`;
+
+                    // Manejador de redimensionamiento compatible con Android / Táctil y Mouse (PointerEvents)
+                    const handle = document.createElement('div');
+                    handle.className = 'resize-handle';
+                    spanEl.appendChild(handle);
+
+                    handle.addEventListener('pointerdown', (e) => {
+                        e.stopPropagation();
+                        handle.setPointerCapture(e.pointerId);
+                        const startX = e.clientX;
+                        const startWidth = spanEl.offsetWidth;
+
+                        function onPointerMove(moveEvent) {
+                            const dx = moveEvent.clientX - startX;
+                            const newW = Math.max(10, startWidth + dx);
+                            spanEl.style.width = `${newW}px`;
+                            boxWidthInput.value = Math.round(newW);
+                        }
+
+                        function onPointerUp(upEvent) {
+                            handle.releasePointerCapture(upEvent.pointerId);
+                            handle.removeEventListener('pointermove', onPointerMove);
+                            handle.removeEventListener('pointerup', onPointerUp);
+                            
+                            if (selectedSpan && selectedSpan.key === key) {
+                                const currentX0 = (spanEl.offsetLeft);
+                                const currentY0 = (spanEl.offsetTop);
+                                const currentY1 = currentY0 + spanEl.offsetHeight;
+                                const finalW = spanEl.offsetWidth;
+                                
+                                selectedSpan.spanData.bbox = [
+                                    currentX0,
+                                    currentY0,
+                                    currentX0 + finalW,
+                                    currentY1
+                                ];
+                                boxWidthInput.value = Math.round(finalW);
+                            }
+                        }
+
+                        handle.addEventListener('pointermove', onPointerMove);
+                        handle.addEventListener('pointerup', onPointerUp);
+                    });
+
+                    spanEl.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        selectSpan(spanEl, page.page_num, span, key);
+                    });
+
+                    pageDiv.appendChild(spanEl);
+                });
+
+                pagesContainer.appendChild(pageDiv);
+            });
+
+            applyZoom();
+        }
+
+        function selectSpan(element, pageNum, spanData, key) {
+            document.querySelectorAll('.text-span').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+
+            const currentMod = modifications[key];
+            selectedSpan = { element, pageNum, spanData, key };
+
+            textInput.disabled = false;
+            fontSizeInput.disabled = false;
+            fontColorInput.disabled = false;
+            fontSelect.disabled = false;
+            boxWidthInput.disabled = false;
+            applyTextBtn.disabled = false;
+
+            textInput.value = currentMod ? currentMod.new_text : spanData.text;
+            fontSizeInput.value = currentMod ? currentMod.size : Math.round(spanData.size || 12);
+            fontColorInput.value = currentMod ? currentMod.color : (spanData.color || '#000000');
+            colorHexLabel.innerText = fontColorInput.value;
+
+            // Poblar fuentes detectadas en el documento
+            fontSelect.innerHTML = '';
+            const detectedFonts = new Set();
+            pdfPages.forEach(p => p.spans.forEach(s => { if(s.font) detectedFonts.add(s.font); }));
+            
+            detectedFonts.forEach(fontName => {
+                const opt = document.createElement('option');
+                opt.value = fontName;
+                opt.innerText = fontName;
+                if(currentMod ? currentMod.font_name === fontName : spanData.font === fontName) {
+                    opt.selected = true;
+                }
+                fontSelect.appendChild(opt);
+            });
+
+            if (fontSelect.options.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = spanData.font || "Times-Bold";
+                opt.innerText = spanData.font || "Times-Bold";
+                opt.selected = true;
+                fontSelect.appendChild(opt);
+            }
+
+            const activeWidth = element.offsetWidth;
+            boxWidthInput.value = Math.round(activeWidth);
+        }
+
+        fontColorInput.addEventListener('input', (e) => {
+            colorHexLabel.innerText = e.target.value;
+        });
+
+        boxWidthInput.addEventListener('input', (e) => {
+            if(!selectedSpan) return;
+            const newW = parseFloat(e.target.value);
+            if(newW > 5) {
+                selectedSpan.element.style.width = `${newW}px`;
+            }
+        });
+
+        applyTextBtn.addEventListener('click', () => {
+            if(!selectedSpan) return;
+
+            const { key, pageNum, spanData, element } = selectedSpan;
+            const currentLeft = element.offsetLeft;
+            const currentTop = element.offsetTop;
+            const currentWidth = element.offsetWidth;
+            const currentHeight = element.offsetHeight;
+
+            const customBbox = [
+                currentLeft,
+                currentTop,
+                currentLeft + currentWidth,
+                currentTop + currentHeight
+            ];
+
+            modifications[key] = {
+                page_num: pageNum,
+                bbox: customBbox,
+                customBbox: customBbox,
+                new_text: textInput.value,
+                size: parseFloat(fontSizeInput.value),
+                color: fontColorInput.value,
+                font_name: fontSelect.value
+            };
+
+            element.classList.add('modified');
+            element.innerText = textInput.value;
+            element.style.fontSize = `${fontSizeInput.value}px`;
+            element.style.color = fontColorInput.value;
+
+            // Reinsertar el manejador de redimensionamiento que se limpia con innerText
+            const handle = document.createElement('div');
+            handle.className = 'resize-handle';
+            element.appendChild(handle);
+
+            updateDock();
+        });
+
+        function updateDock() {
+            const count = Object.keys(modifications).length;
+            modCount.innerText = `${count} Cambio(s)`;
+            dockContainer.style.display = count > 0 ? 'flex' : 'none';
+        }
+
+        resetBtn.addEventListener('click', () => {
+            modifications = {};
+            updateDock();
+            renderPages();
+        });
+
+        savePdfBtn.addEventListener('click', async () => {
+            const payload = {
+                filename: currentFilename,
+                modifications: Object.values(modifications)
+            };
+
+            savePdfBtn.innerText = "Procesando...";
+            savePdfBtn.disabled = true;
+
+            try {
+                const res = await fetch('/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if(data.download_url) {
+                    window.location.href = data.download_url;
+                } else {
+                    alert("Error al generar el PDF.");
+                }
+            } catch (err) {
+                alert("Error de conexión al guardar.");
+            } finally {
+                savePdfBtn.innerHTML = '<i class="fa-solid fa-download"></i> Guardar y Descargar';
+                savePdfBtn.disabled = false;
+            }
+        });
+
+        zoomInBtn.addEventListener('click', () => { if(zoomLevel < 1.8) { zoomLevel += 0.1; applyZoom(); } });
+        zoomOutBtn.addEventListener('click', () => { if(zoomLevel > 0.6) { zoomLevel -= 0.1; applyZoom(); } });
+
+        function applyZoom() {
+            zoomLabel.innerText = `${Math.round(zoomLevel * 100)}%`;
+            document.querySelectorAll('.page-wrapper').forEach(page => {
+                page.style.transform = `scale(${zoomLevel})`;
+            });
+        }
+    </script>
+</body>
+</html>
